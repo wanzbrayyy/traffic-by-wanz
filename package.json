@@ -1,0 +1,15 @@
+{
+  "name": "real-traffic-generator",
+  "version": "1.0.0",
+  "description": "Generate real-like browser traffic that appears in Cloudflare and Google Ads analytics",
+  "main": "wanz.js",
+  "scripts": {
+    "start": "node wanz.js"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
