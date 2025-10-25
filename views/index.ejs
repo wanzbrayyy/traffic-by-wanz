@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>URL Analyzer & Screenshot</title>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c); color:white; min-height:100vh; padding:20px; }
+    .container { max-width:1000px; margin:auto; }
+    header { text-align:center; padding:30px 0; }
+    header h1 { font-size:2.8rem; margin-bottom:10px; text-shadow:0 2px 10px rgba(0,0,0,0.3); }
+    header p { opacity:0.9; font-size:1.1rem; }
+    .card { background:rgba(0,0,0,0.7); border-radius:16px; padding:25px; margin:25px 0; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+    .form-group { margin-bottom:20px; }
+    label { display:block; margin-bottom:8px; font-weight:600; }
+    input, select, button { width:100%; padding:14px; border:none; border-radius:10px; font-size:1rem; }
+    button { background:#ff6b6b; color:white; font-weight:bold; cursor:pointer; transition:0.3s; margin-top:10px; }
+    button:hover { background:#ff5252; transform:scale(1.02); }
+    .result { margin-top:30px; }
+    .error { background:#ff4d4d; padding:15px; border-radius:10px; margin:20px 0; }
+    .success { background:#4caf50; padding:15px; border-radius:10px; margin:20px 0; }
+    .screenshot { text-align:center; margin:20px 0; }
+    .screenshot img { max-width:100%; border:3px solid white; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.4); }
+    .stats { display:flex; justify-content:space-around; flex-wrap:wrap; margin:20px 0; }
+    .stat-box { background:rgba(255,255,255,0.1); padding:15px; border-radius:12px; text-align:center; min-width:120px; }
+    .stat-box i { font-size:2rem; margin-bottom:10px; color:#ffcc00; }
+    footer { text-align:center; margin-top:40px; opacity:0.7; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-binoculars"></i> URL Analyzer</h1>
+      <p>Input URL, pilih device, dan dapatkan screenshot + analisis halaman</p>
+    </header>
+
+    <div class="card">
+      <form method="POST" action="/analyze">
+        <div class="form-group">
+          <label for="url"><i class="fas fa-link"></i> Masukkan URL Lengkap</label>
+          <input type="url" id="url" name="url" placeholder="https://example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="device"><i class="fas fa-mobile-alt"></i> Pilih Tampilan</label>
+          <select id="device" name="device">
+            <option value="desktop">Desktop (1366x768)</option>
+            <option value="mobile">Mobile (375x667)</option>
+          </select>
+        </div>
+        <button type="submit">
+          <i class="fas fa-play-circle"></i> Analisis Sekarang
+        </button>
+      </form>
+    </div>
+
+    <% if (typeof result !== 'undefined') { %>
+      <div class="result">
+        <% if (result.error) { %>
+          <div class="error">
+            <i class="fas fa-exclamation-triangle"></i> Error: <%= result.error %>
+          </div>
+        <% } else { %>
+          <div class="success">
+            <i class="fas fa-check-circle"></i> Analisis berhasil untuk: <strong><%= result.url %></strong>
+          </div>
+
+          <div class="stats">
+            <div class="stat-box">
+              <i class="fas fa-link"></i>
+              <div><%= result.linksCount || 0 %></div>
+              <div>Link Eksternal</div>
+            </div>
+            <div class="stat-box">
+              <i class="fas fa-images"></i>
+              <div><%= result.screenshots.length %></div>
+              <div>Screenshot</div>
+            </div>
+          </div>
+
+          <% if (result.screenshots.length > 0) { %>
+            <div class="screenshot">
+              <h3><i class="fas fa-camera"></i> Screenshot (<%= result.screenshots[0].device === 'mobile' ? 'Mobile' : 'Desktop' %>)</h3>
+              <img src="<%= result.screenshots[0].url %>" alt="Screenshot">
+            </div>
+          <% } %>
+        <% } %>
+      </div>
+    <% } %>
+
+    <footer>
+      <p>© 2025 URL Analyzer • Powered by Playwright + Cloudinary</p>
+    </footer>
+  </div>
+</body>
+</html>
