@@ -2,7 +2,8 @@
   "name": "url-analyzer",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "npx playwright install chromium"
   },
   "dependencies": {
     "express": "^4.21.0",
