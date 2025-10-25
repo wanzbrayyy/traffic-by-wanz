@@ -1,15 +1,14 @@
 {
-  "name": "real-traffic-generator",
+  "name": "url-analyzer",
   "version": "1.0.0",
-  "description": "Generate real-like browser traffic that appears in Cloudflare and Google Ads analytics",
-  "main": "wanz.js",
   "scripts": {
-    "start": "node wanz.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "playwright": "^1.48.0"
-  },
-  "engines": {
-    "node": ">=18"
+    "express": "^4.21.0",
+    "ejs": "^3.1.10",
+    "playwright": "^1.48.0",
+    "cloudinary": "^2.4.0",
+    "dotenv": "^16.4.5"
   }
 }
