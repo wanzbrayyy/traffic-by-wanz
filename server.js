@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { chromium } = require('playwright');
@@ -19,15 +18,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('index', { result: null });
 });
 
-app.post('/analyze', async (req, res) => {
+app.post('/screenshot', async (req, res) => {
   const { url, device } = req.body;
-  let result = { url, screenshots: [], error: null };
 
-  if (!url.startsWith('http')) {
-    return res.render('index', { result: { error: 'URL harus diawali http:// atau https://' } });
+  if (!url || !url.startsWith('http')) {
+    return res.render('index', {
+      result: { error: 'URL harus diawali dengan http:// atau https://' }
+    });
   }
 
   let browser;
@@ -35,36 +35,42 @@ app.post('/analyze', async (req, res) => {
     browser = await chromium.launch({ headless: true });
     const viewport = device === 'mobile'
       ? { width: 375, height: 667 }
-      : { width: 1366, height: 768 };
+      : { width: 1920, height: 1080 };
 
     const context = await browser.newContext({ viewport });
     const page = await context.newPage();
 
     await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
 
-    const links = await page.$$eval('a[href]', as => as.map(a => a.href).filter(href => href.startsWith('http')));
-    result.linksCount = links.length;
-
     const buffer = await page.screenshot({ fullPage: true });
+
     const uploadResult = await cloudinary.uploader.upload_stream(
-      { resource_type: 'image' },
-      (error, cldResult) => {
+      { folder: 'screenshots', resource_type: 'image' },
+      (error, result) => {
         if (error) throw error;
       }
     ).end(buffer);
 
-    result.screenshots.push({ url: uploadResult.secure_url, device });
-
     await context.close();
+
+    const result = {
+      url,
+      screenshotUrl: uploadResult.secure_url,
+      device: device === 'mobile' ? 'Mobile' : 'Desktop'
+    };
+
+    res.render('index', { result });
+
   } catch (err) {
-    result.error = err.message;
+    console.error(err);
+    res.render('index', {
+      result: { error: 'Gagal mengambil screenshot: ' + err.message }
+    });
   } finally {
     if (browser) await browser.close();
   }
-
-  res.render('index', { result });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server berjalan di http://localhost:${PORT}`);
 });
